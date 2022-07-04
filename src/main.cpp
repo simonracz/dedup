@@ -18,14 +18,15 @@ namespace fs = std::filesystem;
     exit(EXIT_FAILURE);
 }
 
-tuple<vector<fs::path>, unordered_set<fs::path>> preprocess_dirs(int argc, char* argv[]) {
-    unordered_set<fs::path> seen;
-    vector<fs::path> dirs{fs::absolute(fs::path{argv[1]})}; // stack
+tuple<vector<fs::path>, unordered_set<string>> preprocess_dirs(int argc, char* argv[]) {
+    auto p = fs::canonical(fs::path{argv[1]});
+    unordered_set<string> seen{p.c_str()};
+    vector<fs::path> dirs{p}; // stack
     for (int i = 2; i < argc; ++i) {
         fs::path p{argv[i]};
-        p = fs::absolute(p);
-        if (seen.count(p) == 0) {
-            seen.insert(p);
+        p = fs::canonical(p);
+        if (seen.count(p.c_str()) == 0) {
+            seen.insert(p.c_str());
             dirs.push_back(p);
         }
     }
@@ -73,8 +74,8 @@ int main(int argc, char* argv[]) {
     }
     auto t = preprocess_dirs(argc, argv);
     vector<fs::path> dirs_to_visit = get<0>(t); // stack
-    unordered_set<fs::path> seen_dirs = get<1>(t); // absolute paths of visited dirs
-    unordered_map<string, vector<fs::path>> visited_files; // size + hash_of_content -> [absolute path]
+    unordered_set<string> seen_dirs = get<1>(t); // canonical paths of visited dirs
+    unordered_map<string, vector<fs::path>> visited_files; // size + hash_of_content -> [canonical path]
     vector<fs::path> empty_files;
 
     while (!dirs_to_visit.empty()) {
@@ -82,15 +83,15 @@ int main(int argc, char* argv[]) {
         dirs_to_visit.pop_back();
         for (auto it = fs::directory_iterator(d); it != fs::directory_iterator(); ++it) {
             if (fs::is_directory(*it)) {
-                fs::path new_dir = fs::absolute(*it);
-                if (seen_dirs.count(new_dir) == 0) {
+                fs::path new_dir = fs::canonical(*it);
+                if (seen_dirs.count(new_dir.c_str()) == 0) {
                     dirs_to_visit.push_back(new_dir);
-                    seen_dirs.insert(new_dir);
+                    seen_dirs.insert(new_dir.c_str());
                 }
                 continue;
             }
             if (fs::is_regular_file(*it)) {
-                process_file(fs::absolute(*it), visited_files, empty_files);
+                process_file(fs::canonical(*it), visited_files, empty_files);
                 continue;
             }
         }
