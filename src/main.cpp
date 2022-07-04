@@ -49,10 +49,11 @@ void process_file(const fs::path& file, unordered_map<string, vector<fs::path>>&
         }
         return;
     }
-    string contents;
-    contents.reserve(size);
+
     ifstream ifs(file, ios::binary);
-    ifs.read(contents.data(), size);
+    vector<char> bytes(size);
+    ifs.read(bytes.data(), size);
+    string contents{bytes.data(), size};
     auto h = sha256(contents);
     if (visited_files.count(h) == 0) {
         visited_files[h] = vector{file};
@@ -97,6 +98,22 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    cout << "Empty file(s): " << empty_files.size() << endl;
+    for (auto& f : empty_files) {
+        cout << f << endl;
+    }
+    cout << endl;
+
+    // TODO
+    cout << "Duplicates: " << visited_files.size() << endl;
+    for (auto& i : visited_files) {
+        cout << "hash: " << i.first << endl;
+        for (auto& f : i.second) {
+            cout << f << endl;
+        }
+        cout << "-\n";
+    }
+    cout << endl;
 
     return 0;
 }
