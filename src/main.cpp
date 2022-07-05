@@ -98,6 +98,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    // TODO Parameterize behavior
     cout << "Empty file(s): " << empty_files.size() << "\n";
     for (auto& f : empty_files) {
         cout << f << "\n";
@@ -111,11 +112,13 @@ int main(int argc, char* argv[]) {
             ++it;
         }
     }
+
+    // TODO Parameterize behavior
     cout << "Duplicates: " << visited_files.size() << "\n";
-    for (auto& i : visited_files) {
-        if (i.second.size() == 1) continue;
-        for (auto& f : i.second) {
-            cout << f << "\n";
+    for (auto& f : visited_files) {
+        if (f.second.size() == 1) continue;
+        for (int i = 0; i < f.second.size(); ++i) {
+            cout << f.second[i] << "\n";
         }
         cout << "\n";
     }
