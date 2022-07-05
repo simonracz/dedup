@@ -98,20 +98,26 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    cout << "Empty file(s): " << empty_files.size() << endl;
+    cout << "Empty file(s): " << empty_files.size() << "\n";
     for (auto& f : empty_files) {
-        cout << f << endl;
+        cout << f << "\n";
     }
     cout << endl;
 
-    // TODO
-    cout << "Duplicates: " << visited_files.size() << endl;
-    for (auto& i : visited_files) {
-        cout << "hash: " << i.first << endl;
-        for (auto& f : i.second) {
-            cout << f << endl;
+    for (auto it = visited_files.begin(); it != visited_files.end(); ) {
+        if (it->second.size() == 1) {
+            it = visited_files.erase(it);
+        } else {
+            ++it;
         }
-        cout << "-\n";
+    }
+    cout << "Duplicates: " << visited_files.size() << "\n";
+    for (auto& i : visited_files) {
+        if (i.second.size() == 1) continue;
+        for (auto& f : i.second) {
+            cout << f << "\n";
+        }
+        cout << "\n";
     }
     cout << endl;
 
